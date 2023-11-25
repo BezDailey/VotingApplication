@@ -13,4 +13,3 @@ services:
       - "3001:3001"
     volumes:
       - ./backend:/usr/src/app
-      - ./data:/usr/src/app/data
