@@ -1,0 +1,30 @@
+.race {
+  width: 90%;
+  margin: 0;
+  padding: 0;
+  margin-left: 2.5%;
+  margin-right: 2.5%;
+  padding-left: 2.5%;
+  padding-right: 2.5%;
+  padding-top: 2.5%;
+  padding-bottom: 2.5%;
+  gap: 1em;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 2px 2px 2px rgba(0, 0, 0, 0.2);
+}
+
+.race h2 {
+  margin: 0;
+  padding: 0;
+}
+
+.raceForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+
+.raceForm button {
+  width: 100px;
+}
