@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 
 import styles from "./AccountCreation.module.css";
 
@@ -11,10 +12,31 @@ const AccountCreation = ({ setUser }) => {
     e.preventDefault();
     console.log("Creating account with", username, password);
     var validator = require("email-validator");
+
     if (validator.validate(username)) {
+      axios
+        .post("http://localhost:3001/user", {
+          username: username,
+          password: password,
+        })
+        .then((response) => {
+          console.log(response);
+
+          if (response.data.errors) {
+            alert("Account creation failed: " + response.data.error);
+          } else {
+            alert("Account creation successful");
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
     } else {
       setError("Username must be an email");
     }
+
+    setUsername("");
+    setPassword("");
   };
 
   return (

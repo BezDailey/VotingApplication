@@ -10,25 +10,28 @@ import BallotCreationBox from "./components/BallotCreationBox/BallotCreationBox"
 
 function App() {
   const [users, setUsers] = useState([]);
-  const [user, setUser] = useState([]);
+  const [user, setUser] = useState({ userID: null });
   const [ballots, setBallots] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loggedIn, setLogin] = useState(false);
+
+  const deleteBallot = (ballotID) => {
+    setBallots((prevBallots) =>
+      prevBallots.filter((ballot) => ballot.ballotID !== ballotID),
+    );
+  };
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const response = await axios.get("http://localhost:3001/users");
         setUsers(response.data);
-        setLoading(false);
       } catch (err) {
         setError(err.message || "Failed to fetch users.");
-        setLoading(false);
       }
     };
 
-    /*
     const fetchBallots = async () => {
       try {
         const response = await axios.get("http://localhost:3001/ballots");
@@ -39,10 +42,9 @@ function App() {
         setLoading(false);
       }
     };
-    */
 
     fetchUsers();
-    // fetchBallots();
+    fetchBallots();
   }, []);
 
   if (loading) return <div>Loading...</div>;
@@ -71,8 +73,10 @@ function App() {
       <div className={styles.componentContainer}>
         {!loggedIn && <LoginBox setUser={setUser} setLoggedIn={setLogin} />}
         {!loggedIn && <AccountCreation setUser={setUser} />}
-        {loggedIn && <PollsBox ballots={ballots} />}
-        {loggedIn && <BallotCreationBox />}
+        {loggedIn && (
+          <PollsBox user={user} deleteBallot={deleteBallot} ballots={ballots} />
+        )}
+        {loggedIn && <BallotCreationBox setBallots={setBallots} user={user} />}
       </div>
     </div>
   );

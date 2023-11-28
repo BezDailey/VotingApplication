@@ -93,3 +93,117 @@ app.post("/user", (req, res) => {
     res.json({ message: "User created successfully", id: this.lastID });
   });
 });
+
+app.post("/race", (req, res) => {
+  const {
+    raceName,
+    racePersonOne,
+    racePersonOneParty,
+    racePersonTwo,
+    racePersonTwoParty,
+    racePersonThree,
+    racePersonThreeParty,
+  } = req.body;
+
+  if (!raceName || !racePersonOne || !racePersonOneParty) {
+    return res.status(400).json({ error: "Required fields are missing." });
+  }
+
+  const sql = `
+    INSERT INTO races (
+      raceName, 
+      racePersonOne, racePersonOneParty, 
+      racePersonTwo, racePersonTwoParty, 
+      racePersonThree, racePersonThreeParty
+    ) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+
+  db.run(
+    sql,
+    [
+      raceName,
+      racePersonOne,
+      racePersonOneParty,
+      racePersonTwo,
+      racePersonTwoParty,
+      racePersonThree,
+      racePersonThreeParty,
+    ],
+    function (err) {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      res.json({ message: "Race entry created successfully", id: this.lastID });
+    },
+  );
+});
+
+app.post("/ballot", (req, res) => {
+  const { ballotName, userID, raceOneID, raceTwoID, raceThreeID } = req.body;
+
+  if (!ballotName || !userID || !raceOneID) {
+    return res.status(400).json({ error: "Required fields are missing." });
+  }
+
+  const sql = `
+    INSERT INTO ballots (
+      ballotName, 
+      userID, 
+      raceOneID, 
+      raceTwoID, 
+      raceThreeID
+    ) VALUES (?, ?, ?, ?, ?)`;
+
+  db.run(
+    sql,
+    [ballotName, userID, raceOneID, raceTwoID, raceThreeID],
+    function (err) {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      res.json({
+        message: "Ballot entry created successfully",
+        id: this.lastID,
+      });
+    },
+  );
+});
+
+app.delete("/race/:id", (req, res) => {
+  const { id } = req.params;
+
+  if (!id) {
+    return res.status(400).json({ error: "Race ID is required." });
+  }
+
+  const sql = "DELETE FROM races WHERE raceID = ?";
+
+  db.run(sql, id, function (err) {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    if (this.changes === 0) {
+      return res.status(404).json({ error: "Race not found." });
+    }
+    res.json({ message: "Race deleted successfully" });
+  });
+});
+
+app.delete("/ballot/:id", (req, res) => {
+  const { id } = req.params;
+
+  if (!id) {
+    return res.status(400).json({ error: "Ballot ID is required." });
+  }
+
+  const sql = "DELETE FROM ballots WHERE ballotID = ?";
+
+  db.run(sql, id, function (err) {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    if (this.changes === 0) {
+      return res.status(404).json({ error: "Ballot not found." });
+    }
+    res.json({ message: "Ballot deleted successfully" });
+  });
+});
