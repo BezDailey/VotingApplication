@@ -168,6 +168,36 @@ app.post("/ballot", (req, res) => {
   );
 });
 
+app.get("/race/:id", (req, res) => {
+  const { id } = req.params;
+
+  if (!id) {
+    return res.status(400).json({ error: "Race ID is required." });
+  }
+
+  const sql = "SELECT * FROM races WHERE raceID = ?";
+
+  db.get(sql, id, (err, race) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    } else {
+      res.json(race);
+    }
+  });
+});
+
+app.get("/races", (req, res) => {
+  const sql = "SELECT * FROM races";
+
+  db.all(sql, [], (err, races) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    } else {
+      res.json(races);
+    }
+  });
+});
+
 app.delete("/race/:id", (req, res) => {
   const { id } = req.params;
 
@@ -205,5 +235,98 @@ app.delete("/ballot/:id", (req, res) => {
       return res.status(404).json({ error: "Ballot not found." });
     }
     res.json({ message: "Ballot deleted successfully" });
+  });
+});
+
+/*
+ * Vote table crud methods
+ */
+
+// Create a new vote
+app.post("/votes", (req, res) => {
+  const { votePerson, userID, raceID } = req.body;
+
+  db.run(
+    "INSERT INTO votes (votePerson, userID, raceID) VALUES (?, ?, ?)",
+    [votePerson, userID, raceID],
+    function (err) {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+
+      res.json({
+        voteID: this.lastID,
+        votePerson,
+        userID,
+        raceID,
+      });
+    },
+  );
+});
+
+// Read all votes
+app.get("/votes", (req, res) => {
+  db.all("SELECT * FROM votes", (err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+
+    res.json(rows);
+  });
+});
+
+// Read a specific vote by voteID
+app.get("/votes/:voteID", (req, res) => {
+  const { voteID } = req.params;
+
+  db.get("SELECT * FROM votes WHERE voteID = ?", [voteID], (err, row) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+
+    if (!row) {
+      return res.status(404).json({ message: "Vote not found" });
+    }
+
+    res.json(row);
+  });
+});
+
+// Update a vote by voteID
+app.put("/votes/:voteID", (req, res) => {
+  const { votePerson, userID, raceID } = req.body;
+  const { voteID } = req.params;
+
+  db.run(
+    "UPDATE votes SET votePerson = ?, userID = ?, raceID = ? WHERE voteID = ?",
+    [votePerson, userID, raceID, voteID],
+    function (err) {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+
+      if (this.changes === 0) {
+        return res.status(404).json({ message: "Vote not found" });
+      }
+
+      res.json({ message: "Vote updated" });
+    },
+  );
+});
+
+// Delete a vote by voteID
+app.delete("/votes/:voteID", (req, res) => {
+  const { voteID } = req.params;
+
+  db.run("DELETE FROM votes WHERE voteID = ?", [voteID], function (err) {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+
+    if (this.changes === 0) {
+      return res.status(404).json({ message: "Vote not found" });
+    }
+
+    res.json({ message: "Vote deleted" });
   });
 });

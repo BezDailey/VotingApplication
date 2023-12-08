@@ -12,6 +12,8 @@ function App() {
   const [users, setUsers] = useState([]);
   const [user, setUser] = useState({ userID: null });
   const [ballots, setBallots] = useState([]);
+  const [races, setRaces] = useState([]);
+  const [votes, setVotes] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loggedIn, setLogin] = useState(false);
@@ -36,15 +38,35 @@ function App() {
       try {
         const response = await axios.get("http://localhost:3001/ballots");
         setBallots(response.data);
-        setLoading(false);
       } catch (err) {
         setError(err.message || "Failed to fetch ballots.");
+      }
+    };
+
+    const fetchRaces = async () => {
+      try {
+        const response = await axios.get("http://localhost:3001/races");
+        setRaces(response.data);
+      } catch (err) {
+        setError(err.message || "Failed to fetch races.");
+      }
+    };
+
+    const fetchVotes = async () => {
+      try {
+        const response = await axios.get("http://localhost:3001/votes");
+        setVotes(response.data);
+        setLoading(false);
+      } catch (err) {
+        setError(err.message || "Failed to fetch votes.");
         setLoading(false);
       }
     };
 
     fetchUsers();
     fetchBallots();
+    fetchRaces();
+    fetchVotes();
   }, []);
 
   if (loading) return <div>Loading...</div>;
@@ -74,9 +96,23 @@ function App() {
         {!loggedIn && <LoginBox setUser={setUser} setLoggedIn={setLogin} />}
         {!loggedIn && <AccountCreation setUser={setUser} />}
         {loggedIn && (
-          <PollsBox user={user} deleteBallot={deleteBallot} ballots={ballots} />
+          <PollsBox
+            user={user}
+            deleteBallot={deleteBallot}
+            races={races}
+            ballots={ballots}
+            setVotes={setVotes}
+            votes={votes}
+          />
         )}
-        {loggedIn && <BallotCreationBox setBallots={setBallots} user={user} />}
+        {loggedIn && (
+          <BallotCreationBox
+            currentBallots={ballots.length}
+            setRaces={setRaces}
+            setBallots={setBallots}
+            user={user}
+          />
+        )}
       </div>
     </div>
   );

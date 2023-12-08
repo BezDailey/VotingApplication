@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import axios from "axios";
 
 import styles from "./Ballot.module.css";
@@ -14,6 +14,10 @@ const Ballot = ({
   raceThreeID,
   user,
   deleteBallot,
+  races,
+  setVotes,
+  ballot,
+  votes,
 }) => {
   const deleteRace = async (raceID) => {
     try {
@@ -61,13 +65,27 @@ const Ballot = ({
     deleteBallot(ballotID);
   };
 
+  const allowedIDs = [raceOneID, raceTwoID, raceThreeID].filter(Boolean);
+
   if (user) {
     return (
       <div className={styles.ballot}>
         <h1>{ballotName}</h1>
-        {raceOneID != null && <Race />}
-        {raceTwoID != null && <Race />}
-        {raceThreeID != null && <Race />}
+        {races.map((race) => {
+          if (allowedIDs.includes(race.raceID)) {
+            return (
+              <Race
+                setVotes={setVotes}
+                votes={votes}
+                user={user}
+                race={race}
+                key={race.raceID}
+                ballot={ballot}
+              />
+            );
+          }
+          return null;
+        })}
         {userID === Number(user.userID) && (
           <form onSubmit={handleSubmit}>
             <button type="submit">Delete</button>

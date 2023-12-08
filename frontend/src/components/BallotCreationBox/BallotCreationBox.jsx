@@ -3,7 +3,7 @@ import axios from "axios";
 
 import styles from "./BallotCreationBox.module.css";
 
-const BallotCreationBox = ({ user, setBallots }) => {
+const BallotCreationBox = ({ user, currentBallots, setBallots, setRaces }) => {
   const [ballotName, setBallotName] = useState("");
   const [raceAmount, setRaceAmount] = useState("1");
 
@@ -168,6 +168,11 @@ const BallotCreationBox = ({ user, setBallots }) => {
     let raceTwoID;
     let raceThreeID;
 
+    if (currentBallots >= 10) {
+      alert("There is a maximum of ten active ballots.");
+      return;
+    }
+
     switch (raceAmount) {
       case "1":
         raceOneID = await createRace(
@@ -266,6 +271,9 @@ const BallotCreationBox = ({ user, setBallots }) => {
 
     const response = await axios.get("http://localhost:3001/ballots");
     setBallots(response.data);
+
+    const raceResponse = await axios.get("http://localhost:3001/races");
+    setRaces(raceResponse.data);
 
     resetForm();
   };

@@ -4,8 +4,7 @@ import styles from "./PollsBox.module.css";
 
 import Ballot from "../Ballot/Ballot";
 
-const PollsBox = ({ ballots, user, deleteBallot }) => {
-  console.log(ballots);
+const PollsBox = ({ votes, setVotes, races, ballots, user, deleteBallot }) => {
   return (
     <div className={styles.container}>
       <h1>Ballots</h1>
@@ -16,6 +15,10 @@ const PollsBox = ({ ballots, user, deleteBallot }) => {
             key={ballot.ballotID}
             deleteBallot={deleteBallot}
             user={user}
+            races={races}
+            setVotes={setVotes}
+            ballot={ballot}
+            votes={votes}
             {...ballot}
           />
         ))}
